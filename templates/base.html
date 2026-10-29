@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Scadenze PS{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+  {% if current_user and not hide_shell %}
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">PS</span>
+        <div>
+          <strong>Scadenze PS</strong>
+          <small>Cassette pronto soccorso</small>
+        </div>
+      </div>
+      <nav>
+        <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' and not request.args.get('view') and request.args.get('cassetta') != 'portatile' %}active{% endif %}">Panoramica</a>
+        <a href="{{ url_for('dashboard', cassetta='portatile') }}" class="{% if request.endpoint == 'dashboard' and request.args.get('cassetta') == 'portatile' %}active{% endif %}">Cassetta portatile</a>
+        {% if current_user.ruolo != 'filiale' %}
+        <a href="{{ url_for('dashboard', view='alert') }}" class="{% if request.args.get('view') == 'alert' %}active{% endif %}">In alert</a>
+        {% endif %}
+        {% if current_user.ruolo in ['admin', 'responsabile_ordini'] %}
+        <a href="{{ url_for('dashboard', view='posticipati') }}" class="{% if request.args.get('view') == 'posticipati' %}active{% endif %}">Posticipati</a>
+        {% endif %}
+        {% if current_user.ruolo == 'responsabile_ordini' %}
+        <a href="{{ url_for('profilo_email') }}">La mia email</a>
+        {% endif %}
+        {% if current_user.ruolo in ['admin', 'filiale'] %}
+        <a href="{{ url_for('import_page') }}">Importa Excel</a>
+        <a href="{{ url_for('prodotto_nuovo') }}">Nuovo prodotto</a>
+        {% endif %}
+        {% if current_user.ruolo == 'admin' %}
+        <a href="{{ url_for('admin_utenti') }}">Utenti</a>
+        <a href="{{ url_for('admin_impostazioni') }}">Impostazioni</a>
+        {% endif %}
+        <a href="{{ url_for('guida') }}">Guida</a>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="user-chip">
+          <strong>{{ current_user.nome_completo or current_user.username }}</strong>
+          <small>{{ current_user.ruolo }}{% if current_user.filiale_nome %} · {{ current_user.filiale_nome }}{% endif %}{% if current_user.email %} · {{ current_user.email }}{% endif %}</small>
+        </div>
+        <a class="link-muted" href="{{ url_for('change_password') }}">Cambia password</a>
+        <a class="btn btn-ghost" href="{{ url_for('logout') }}">Esci</a>
+      </div>
+    </aside>
+    <main class="content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flashes">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+  {% else %}
+    {% block auth %}{% endblock %}
+  {% endif %}
+</body>
+</html>

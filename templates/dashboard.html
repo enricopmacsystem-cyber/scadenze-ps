@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Panoramica — Scadenze PS{% endblock %}
+{% block content %}
+{% set cas = 'portatile' if cassetta == 'portatile' else none %}
+<div class="page-head">
+  <div>
+    <h1>
+      {% if cas %}Cassetta portatile — {% endif %}
+      {% if selected == -1 %}Prodotti in alert
+      {% elif selected is none %}
+        {% if is_global %}Tutte le filiali{% else %}Gruaro — entrambe le cassette{% endif %}
+      {% else %}
+        {% for f in filiali if f.id == selected %}{{ f.nome }}{% endfor %}
+      {% endif %}
+    </h1>
+    <p>{% if cas %}Contenuto della cassetta PS portatile della filiale{% else %}Gestione scadenze cassette di pronto soccorso{% endif %}</p>
+  </div>
+  <div class="toolbar">
+    {% if can_edit %}
+      <a class="btn" href="{{ url_for('prodotto_nuovo', cassetta=cas, filiale=selected if selected is not none and selected > 0 else none) }}">Nuovo prodotto</a>
+      {% if not cas %}<a class="btn btn-secondary" href="{{ url_for('import_page') }}">Importa Excel</a>{% endif %}
+    {% endif %}
+    {% if current_user.ruolo in ['admin', 'responsabile_ordini'] %}
+      <form method="post" action="{{ url_for('invia_alert') }}" style="display:inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="btn btn-warn" type="submit">Invia alert email</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+{% if read_only %}
+<p class="muted" style="margin-bottom:14px">Account responsabile ordini: puoi consultare tutte le filiali e gestire gli alert, senza modificare i prodotti.</p>
+{% endif %}
+<div class="stats">
+  <div class="stat"><strong>{{ prodotti|length }}</strong><span>Prodotti in elenco</span></div>
+  <div class="stat"><strong>{{ alert_count }}</strong><span>In alert (scadenza / esauriti)</span></div>
+</div>
+
+{% if cassetta %}
+<div class="filiali-tabs" role="tablist" aria-label="Tipo di cassetta">
+  {% set fil = selected if selected is not none and selected > 0 else none %}
+  <a class="chip {% if not cas %}active{% endif %}" href="{{ url_for('dashboard', filiale=fil) }}" role="tab" aria-selected="{{ 'false' if cas else 'true' }}">Cassetta fissa</a>
+  <a class="chip {% if cas %}active{% endif %}" href="{{ url_for('dashboard', filiale=fil, cassetta='portatile') }}" role="tab" aria-selected="{{ 'true' if cas else 'false' }}">Cassetta portatile</a>
+</div>
+{% endif %}
+
+{% if is_global or filiali|length > 1 %}
+<div class="filiali-tabs" role="tablist" aria-label="Filtro filiale">
+  {% if is_global %}
+    <a class="chip {% if selected is none %}active{% endif %}" href="{{ url_for('dashboard', filiale='all', cassetta=cas) }}" role="tab" aria-selected="{{ 'true' if selected is none else 'false' }}">Tutte</a>
+  {% else %}
+    <a class="chip {% if selected is none %}active{% endif %}" href="{{ url_for('dashboard', filiale='all', cassetta=cas) }}" role="tab" aria-selected="{{ 'true' if selected is none else 'false' }}">Entrambe</a>
+  {% endif %}
+  {% for f in filiali %}
+    <a class="chip {% if selected is not none and selected|int == f.id|int %}active{% endif %}" href="{{ url_for('dashboard', filiale=f.id, cassetta=cas) }}" role="tab" aria-selected="{{ 'true' if selected is not none and selected|int == f.id|int else 'false' }}">{{ f.nome }}</a>
+  {% endfor %}
+  {% if is_global %}
+  <a class="chip {% if selected == -1 %}active{% endif %}" href="{{ url_for('dashboard', view='alert') }}" role="tab">Solo alert</a>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="card">
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Filiale</th>
+        <th>Prodotto</th>
+        <th>Previsti</th>
+        <th>Effettivi</th>
+        <th>Scadenza</th>
+        <th>Stato</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in prodotti %}
+      <tr>
+        <td>{{ p.filiale }}</td>
+        <td>{{ p.nome }}{% if p.cassetta == 'portatile' and not cas %} <span class="badge badge-portatile">Portatile</span>{% endif %}</td>
+        <td>{{ p.pezzi_previsti }}</td>
+        <td>{{ p.pezzi_effettivi }}</td>
+        <td>
+          {% if p.non_scade %}NON SCADE
+          {% elif p.scadenza %}{{ p.scadenza[8:10] }}/{{ p.scadenza[5:7] }}/{{ p.scadenza[0:4] }}
+          {% else %}—{% endif %}
+        </td>
+        <td><span class="badge badge-{{ p.stato }}">{{ p.stato_label }}</span></td>
+        <td>
+          {% if current_user.ruolo in ['admin', 'filiale'] and p.filiale_id in editable_filiale_ids %}
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('prodotto_modifica', pid=p.id) }}">Modifica</a>
+            <form method="post" action="{{ url_for('prodotto_elimina', pid=p.id) }}" style="display:inline" onsubmit="return confirm('Eliminare questo prodotto?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button class="btn btn-danger btn-sm" type="submit">Elimina</button>
+            </form>
+          {% endif %}
+          {% if current_user.ruolo in ['admin', 'responsabile_ordini'] and p.stato in ['in_scadenza', 'scaduto'] %}
+            <form method="post" action="{{ url_for('posticipa', pid=p.id) }}" style="display:inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button class="btn btn-warn btn-sm" type="submit">Posticipa mese</button>
+            </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7">{% if cas %}Nessun prodotto nella cassetta portatile. Usa «Nuovo prodotto» per aggiungerne.{% else %}Nessun prodotto. Importa un Excel o aggiungi prodotti manualmente.{% endif %}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

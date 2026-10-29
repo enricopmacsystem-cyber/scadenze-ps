@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Posticipati — Scadenze PS{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Posticipati per {{ mese }}</h1>
+    <p>Prodotti rimandati all'ordine cumulativo di questo mese</p>
+  </div>
+</div>
+<div class="card">
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Filiale</th>
+        <th>Prodotto</th>
+        <th>Da mese</th>
+        <th>A mese</th>
+        <th>Creato il</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in posticipati %}
+      <tr>
+        <td>{{ p.filiale_nome }}</td>
+        <td>{{ p.prodotto_nome }}</td>
+        <td>{{ p.posticipato_da }}</td>
+        <td>{{ p.posticipato_a }}</td>
+        <td>{{ p.creato_il }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5">Nessun prodotto posticipato per questo mese.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

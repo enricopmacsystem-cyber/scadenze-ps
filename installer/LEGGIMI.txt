@@ -1,0 +1,28 @@
+# Scadenze PS — istruzioni per il collega
+
+## Installazione
+
+1. Estrai tutto lo ZIP in una cartella temporanea
+2. Esegui **Installa.bat** (doppio clic)
+3. Al termine troverai **Scadenze PS** sul Desktop e nel menu Start
+
+L’app viene installata in:
+`%LOCALAPPDATA%\Scadenze-PS`
+
+Non serve avere Python installato.
+
+## Primo utilizzo
+
+1. Apri **Scadenze PS**
+2. Per ogni filiale puoi importare un Excel o usare **Copia da Marghera** e poi aggiornare pezzi/scadenze
+3. In **Impostazioni** configura SMTP e destinatari email (quando disponibili)
+
+## Disinstallazione
+
+Esegui `Disinstalla.bat` nella cartella di installazione, oppure:
+
+`%LOCALAPPDATA%\Scadenze-PS\Disinstalla.bat`
+
+## Filiali gestite
+
+Tavagnacco, Verona, Padova, Marghera, Gruaro, Villorba, Mirandola

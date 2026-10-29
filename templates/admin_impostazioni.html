@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Impostazioni{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Impostazioni email</h1>
+    <p>Stato SMTP: {% if smtp_ok %}<span class="badge badge-ok">OK</span>{% else %}<span class="badge badge-in_scadenza">{{ smtp_msg }}</span>{% endif %}</p>
+  </div>
+</div>
+<form class="card form-card" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <p class="muted"><strong>Go-live non attivo:</strong> l'invio SMTP è bloccato a livello codice. Nessuna mail parte (né automatica né da «Invia alert»).</p>
+  <label class="check"><input type="checkbox" disabled> Abilita invio email alert (bloccato)</label>
+  <label>Giorni di preavviso</label>
+  <input name="alert_days" type="number" min="1" value="{{ settings.alert_days }}">
+  <label>Host SMTP</label>
+  <input name="host" value="{{ settings.smtp.host }}">
+  <label>Porta</label>
+  <input name="port" type="number" value="{{ settings.smtp.port }}">
+  <label>Username</label>
+  <input name="username" value="{{ settings.smtp.username }}">
+  <label>Password SMTP</label>
+  <input name="password" type="password" value="" autocomplete="new-password" placeholder="Lascia vuoto per non modificare">
+  <p class="muted">La password è salvata cifrata sul NAS. Non viene mostrata dopo il salvataggio.</p>
+  <label>Email mittente</label>
+  <input name="from_email" type="email" value="{{ settings.smtp.from_email }}">
+  <label>Nome mittente</label>
+  <input name="from_name" value="{{ settings.smtp.from_name }}">
+  <label class="check"><input type="checkbox" name="use_tls" {% if settings.smtp.use_tls %}checked{% endif %}> Usa TLS</label>
+  <label>Destinatari globali — Silvia / ordini (uno per riga)</label>
+  <textarea name="recipients">{{ settings.recipients|join('\n') }}</textarea>
+  <p class="muted">Ricevono il <strong>quadro completo</strong> di tutte le filiali. Gli account
+    <strong>responsabile_ordini</strong> con email in anagrafica sono aggiunti automaticamente.</p>
+  <label>Email responsabili filiale</label>
+  <textarea name="filiale_emails_text" rows="10">{% for nome, emails in (settings.filiale_emails or {})|dictsort %}{{ nome }}: {{ emails|join(', ') }}
+{% endfor %}</textarea>
+  <p class="muted">Formato: <code>Nome filiale: email1, email2</code> (una riga per filiale).
+    Ogni responsabile riceve <strong>solo i prodotti della propria filiale</strong>.
+    Mirandola/Modena: lascia vuoto finché in standby.</p>
+  <div class="form-actions"><button class="btn" type="submit">Salva</button></div>
+</form>
+{% endblock %}

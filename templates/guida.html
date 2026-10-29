@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Guida d'uso{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Guida d'uso</h1>
+    <p>Tre guide PDF per ruolo — aggiorna sempre i pezzi se un prodotto si esaurisce</p>
+  </div>
+</div>
+<article class="guida">
+  <h2>Guide PDF (NAS)</h2>
+  <p>Nella cartella <code>\\172.17.17.11\supporto-tecnico\Scadenze-PS</code> trovi:</p>
+  <ul>
+    <li><strong>GUIDA_FILIALE.pdf</strong> — responsabili di filiale</li>
+    <li><strong>GUIDA_ORDINI.pdf</strong> — chi ordina / coordina il materiale</li>
+    <li><strong>GUIDA_ADMIN.pdf</strong> — amministratore</li>
+  </ul>
+
+  <h2>Importante per le filiali</h2>
+  <p>Se un prodotto è <strong>consumato</strong>, apri Modifica e porta i <strong>pezzi effettivi a 0</strong> subito.
+    Lo stato diventa <strong>Esaurito</strong> (non più OK verde). A sistema email attivo parte subito
+    la richiesta di riordino. Senza aggiornamento in app, nessuno viene avvisato.</p>
+
+  <h2>Stati</h2>
+  <ul>
+    <li><strong>OK</strong> — disponibile</li>
+    <li><strong>In scadenza</strong> — entro 15 giorni</li>
+    <li><strong>Scaduto</strong> — data passata</li>
+    <li><strong>Esaurito</strong> — pezzi effettivi = 0</li>
+  </ul>
+
+  <h2>Email</h2>
+  <p>Invio SMTP attualmente <strong>disattivato</strong> fino al go-live. In app gli alert restano visibili.</p>
+
+  <h2>Accesso</h2>
+  <ol>
+    <li>Icona Desktop <strong>Scadenze PS</strong></li>
+    <li>Browser su <code>http://localhost:5000</code></li>
+    <li>Al primo accesso cambia la password</li>
+  </ol>
+</article>
+{% endblock %}

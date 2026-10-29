@@ -1,0 +1,8 @@
+# INSTALLER DISCONTINUATO
+
+Questa cartella e gli script di build desktop non sono più usati.
+
+Scadenze PS è un'applicazione **web**.
+Avvio: `python main.py` dalla root del progetto.
+Dati: `\\172.17.17.11\supporto-tecnico\Scadenze-PS`
+Guida: `GUIDA_USO.md`

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Accesso — Scadenze PS{% endblock %}
+{% block auth %}
+<div class="auth-page">
+  <form class="auth-card" method="post" action="{{ url_for('login') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <h1>Scadenze PS</h1>
+    <p class="lead">Accedi con le credenziali della tua filiale</p>
+    <label for="username">Username</label>
+    <input id="username" name="username" type="text" autocomplete="username" required autofocus>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    <button class="btn" type="submit">Accedi</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Modifica' if prodotto else 'Nuovo' }} prodotto{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ 'Modifica prodotto' if prodotto else 'Nuovo prodotto' }}</h1>
+    <p>Inserisci pezzi e scadenza della cassetta PS</p>
+  </div>
+</div>
+<form class="card form-card" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label for="filiale_id">Filiale</label>
+  <select id="filiale_id" name="filiale_id" required {% if filiali|length == 1 %}disabled{% endif %}>
+    {% for f in filiali %}
+      <option value="{{ f.id }}" {% if prodotto and prodotto.filiale_id == f.id %}selected{% elif not prodotto and selected_filiale == f.id %}selected{% elif not prodotto and not selected_filiale and loop.first %}selected{% endif %}>{{ f.nome }}</option>
+    {% endfor %}
+  </select>
+  {% if filiali|length == 1 %}
+    <input type="hidden" name="filiale_id" value="{{ filiali[0].id }}">
+  {% endif %}
+
+  <label for="cassetta">Cassetta</label>
+  <select id="cassetta" name="cassetta">
+    <option value="fissa" {% if cassetta != 'portatile' %}selected{% endif %}>Cassetta fissa</option>
+    <option value="portatile" {% if cassetta == 'portatile' %}selected{% endif %}>Cassetta portatile</option>
+  </select>
+
+  <label for="nome">Nome prodotto</label>
+  <input id="nome" name="nome" type="text" required value="{{ prodotto.nome if prodotto else '' }}">
+
+  <label for="pezzi_previsti">Pezzi previsti</label>
+  <input id="pezzi_previsti" name="pezzi_previsti" type="number" min="0" value="{{ prodotto.pezzi_previsti if prodotto else 1 }}">
+
+  <label for="pezzi_effettivi">Pezzi effettivi</label>
+  <input id="pezzi_effettivi" name="pezzi_effettivi" type="number" min="0" value="{{ prodotto.pezzi_effettivi if prodotto else 1 }}">
+
+  <label class="check"><input type="checkbox" name="non_scade" id="non_scade" {% if prodotto and prodotto.non_scade %}checked{% endif %} onchange="document.getElementById('scadenza').disabled=this.checked"> Non scade</label>
+
+  <label for="scadenza">Scadenza</label>
+  <input id="scadenza" name="scadenza" type="date" value="{{ prodotto.scadenza if prodotto and prodotto.scadenza else '' }}" {% if prodotto and prodotto.non_scade %}disabled{% endif %}>
+
+  <label for="note">Note</label>
+  <input id="note" name="note" type="text" value="{{ prodotto.note if prodotto and prodotto.note else '' }}">
+
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <div class="form-actions">
+    <button class="btn" type="submit">Salva</button>
+    <a class="btn btn-secondary" href="{{ url_for('dashboard', cassetta='portatile' if cassetta == 'portatile' else none) }}">Annulla</a>
+  </div>
+</form>
+{% endblock %}

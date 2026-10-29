@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}La mia email{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>La mia email</h1>
+    <p>Indirizzo su cui ricevere gli alert di scadenza (in aggiunta alla panoramica in app)</p>
+  </div>
+</div>
+<form class="card form-card" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label for="email">Email</label>
+  <input id="email" name="email" type="email" value="{{ email }}" autocomplete="email" aria-label="Email per gli alert">
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <div class="form-actions">
+    <button class="btn" type="submit">Salva</button>
+    <a class="btn btn-secondary" href="{{ url_for('dashboard', view='alert') }}">Annulla</a>
+  </div>
+</form>
+{% endblock %}

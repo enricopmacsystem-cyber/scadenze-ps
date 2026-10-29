@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Importa Excel{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Importa Excel</h1>
+    <p>Carica il foglio della tua filiale (sostituisce i prodotti esistenti). Layout diversi sono supportati.</p>
+  </div>
+</div>
+<form class="card form-card" method="post" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <p class="muted">Accetta formati classici e monitoraggi. Per Gruaro, Showroom e Magazzino vengono importati come due cassette separate se presenti nel file.</p>
+  <label for="filiale_id">Filiale</label>
+  <select id="filiale_id" name="filiale_id" required {% if filiali|length == 1 %}disabled{% endif %}>
+    {% for f in filiali %}
+      <option value="{{ f.id }}">{{ f.nome }}</option>
+    {% endfor %}
+  </select>
+  {% if filiali|length == 1 %}
+    <input type="hidden" name="filiale_id" value="{{ filiali[0].id }}">
+  {% endif %}
+
+  <label for="excel">File Excel (.xlsx)</label>
+  <input id="excel" name="excel" type="file" accept=".xlsx,.xlsm" required>
+
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <div class="form-actions">
+    <button class="btn" type="submit">Importa</button>
+    <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Annulla</a>
+  </div>
+</form>
+{% endblock %}

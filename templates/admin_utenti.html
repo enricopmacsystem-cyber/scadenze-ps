@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Utenti{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Gestione utenti</h1>
+    <p>Account filiali e responsabile ordini</p>
+  </div>
+</div>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+<div class="card" style="margin-bottom:20px">
+  <table class="data">
+    <thead>
+      <tr><th>Username</th><th>Nome</th><th>Ruolo</th><th>Filiale</th><th>Attivo</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for u in utenti %}
+      <tr>
+        <td>{{ u.username }}</td>
+        <td>{{ u.nome_completo }}</td>
+        <td>{{ u.ruolo }}</td>
+        <td>{{ u.filiale_nome or '—' }}</td>
+        <td>{{ 'Sì' if u.attivo else 'No' }}</td>
+        <td>
+          <form method="post" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="action" value="toggle">
+            <input type="hidden" name="utente_id" value="{{ u.id }}">
+            <button class="btn btn-secondary btn-sm" type="submit">Attiva/Disattiva</button>
+          </form>
+          <form method="post" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="action" value="reset_pw">
+            <input type="hidden" name="utente_id" value="{{ u.id }}">
+            <button class="btn btn-warn btn-sm" type="submit">Reset password</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<form class="card form-card" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <h2 style="margin-top:0;font-family:var(--display)">Nuovo utente</h2>
+  <input type="hidden" name="action" value="add">
+  <label>Username</label>
+  <input name="username" required>
+  <label>Password iniziale (vuoto = generata automaticamente)</label>
+  <input name="password" type="password" autocomplete="new-password">
+  <label>Nome completo</label>
+  <input name="nome_completo">
+  <label>Ruolo</label>
+  <select name="ruolo">
+    {% for r in ruoli %}<option value="{{ r }}">{{ r }}</option>{% endfor %}
+  </select>
+  <label>Filiale</label>
+  <select name="filiale_id">
+    <option value="">(nessuna)</option>
+    {% for f in filiali %}<option value="{{ f.id }}">{{ f.nome }}</option>{% endfor %}
+  </select>
+  <label>Email</label>
+  <input name="email" type="email">
+  <div class="form-actions"><button class="btn" type="submit">Crea utente</button></div>
+</form>
+{% endblock %}
