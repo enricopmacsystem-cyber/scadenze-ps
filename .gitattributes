@@ -1,0 +1,10 @@
+# File binari: nessuna conversione dei fine riga (core.autocrlf li rovinerebbe)
+*.pdf binary
+*.ico binary
+*.png binary
+*.jpg binary
+*.lnk binary
+*.xlsx binary
+*.xlsm binary
+*.db binary
+*.exe binary
