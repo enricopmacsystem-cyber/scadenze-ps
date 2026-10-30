@@ -29,7 +29,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
             "marco.fedrigo@macsystem.it",
             "valentina.visentin@macsystem.it",
         ],
-        "Verona": ["roberto.bazzoni@macsystem.it"],
+        "Verona": ["hamza@macsystem.it"],
         "Villorba": ["gabriele.benetton@macsystem.it"],
         "Padova": ["marc.borgato@macsystem.it"],
         "Tavagnacco": ["andrea.collovigh@macsystem.it"],
