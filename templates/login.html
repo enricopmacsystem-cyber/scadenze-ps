@@ -2,6 +2,7 @@
 {% block title %}Accesso — Scadenze PS{% endblock %}
 {% block auth %}
 <div class="auth-page">
+  <img class="auth-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo aziendale">
   <form class="auth-card" method="post" action="{{ url_for('login') }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     <h1>Scadenze PS</h1>
