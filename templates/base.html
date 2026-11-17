@@ -4,51 +4,61 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Scadenze PS{% endblock %}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 </head>
 <body>
   {% if current_user and not hide_shell %}
+  {% set ep = request.endpoint %}
+  {% set view = request.args.get('view') %}
+  {% set portatile = request.args.get('cassetta') == 'portatile' %}
+  {% macro nav_link(href, ico, label, active=false) -%}
+    <a href="{{ href }}"{% if active %} class="active" aria-current="page"{% endif %}>{{ icon(ico) }}<span>{{ label }}</span></a>
+  {%- endmacro %}
   <div class="shell">
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="brand">
         <img class="brand-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo aziendale">
-        <div>
+        <div class="brand-text">
           <strong>Scadenze PS</strong>
           <small>Cassette pronto soccorso</small>
         </div>
+        <button class="nav-toggle" type="button" aria-controls="sidebar-menu" aria-expanded="false"
+                onclick="var o=document.getElementById('sidebar').classList.toggle('nav-open');this.setAttribute('aria-expanded',o)">
+          {{ icon('menu') }}<span>Menu</span>
+        </button>
       </div>
-      <nav>
-        <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' and not request.args.get('view') and request.args.get('cassetta') != 'portatile' %}active{% endif %}">Panoramica</a>
-        <a href="{{ url_for('dashboard', cassetta='portatile') }}" class="{% if request.endpoint == 'dashboard' and request.args.get('cassetta') == 'portatile' %}active{% endif %}">Cassetta portatile</a>
-        {% if current_user.ruolo != 'filiale' %}
-        <a href="{{ url_for('dashboard', view='alert') }}" class="{% if request.args.get('view') == 'alert' %}active{% endif %}">In alert</a>
-        {% endif %}
-        {% if current_user.ruolo in ['admin', 'responsabile_ordini'] %}
-        <a href="{{ url_for('dashboard', view='posticipati') }}" class="{% if request.args.get('view') == 'posticipati' %}active{% endif %}">Posticipati</a>
-        {% endif %}
-        {% if current_user.ruolo == 'responsabile_ordini' %}
-        <a href="{{ url_for('profilo_email') }}">La mia email</a>
-        {% endif %}
-        {% if current_user.ruolo in ['admin', 'filiale'] %}
-        <a href="{{ url_for('import_page') }}">Importa Excel</a>
-        <a href="{{ url_for('prodotto_nuovo') }}">Nuovo prodotto</a>
-        {% endif %}
-        {% if current_user.ruolo == 'admin' %}
-        <a href="{{ url_for('admin_utenti') }}">Utenti</a>
-        <a href="{{ url_for('admin_impostazioni') }}">Impostazioni</a>
-        {% endif %}
-        <a href="{{ url_for('guida') }}">Guida</a>
-      </nav>
-      <div class="sidebar-foot">
-        <div class="user-chip">
-          <strong>{{ current_user.nome_completo or current_user.username }}</strong>
-          <small>{{ current_user.ruolo }}{% if current_user.filiale_nome %} · {{ current_user.filiale_nome }}{% endif %}{% if current_user.email %} · {{ current_user.email }}{% endif %}</small>
+      <div class="sidebar-menu" id="sidebar-menu">
+        <nav aria-label="Menu principale">
+          {{ nav_link(url_for('dashboard'), 'layout-dashboard', 'Panoramica', ep == 'dashboard' and not view and not portatile) }}
+          {{ nav_link(url_for('dashboard', cassetta='portatile'), 'briefcase-medical', 'Cassetta portatile', ep == 'dashboard' and portatile) }}
+          {% if current_user.ruolo != 'filiale' %}
+          {{ nav_link(url_for('dashboard', view='alert'), 'bell-ring', 'In alert', view == 'alert') }}
+          {% endif %}
+          {% if current_user.ruolo in ['admin', 'responsabile_ordini'] %}
+          {{ nav_link(url_for('dashboard', view='posticipati'), 'calendar-clock', 'Posticipati', view == 'posticipati') }}
+          {% endif %}
+          {% if current_user.ruolo == 'responsabile_ordini' %}
+          {{ nav_link(url_for('profilo_email'), 'mail', 'La mia email', ep == 'profilo_email') }}
+          {% endif %}
+          {% if current_user.ruolo in ['admin', 'filiale'] %}
+          {{ nav_link(url_for('import_page'), 'file-spreadsheet', 'Importa Excel', ep == 'import_page') }}
+          {{ nav_link(url_for('prodotto_nuovo'), 'plus', 'Nuovo prodotto', ep == 'prodotto_nuovo') }}
+          {% endif %}
+          {% if current_user.ruolo == 'admin' %}
+          {{ nav_link(url_for('admin_utenti'), 'users', 'Utenti', ep == 'admin_utenti') }}
+          {{ nav_link(url_for('admin_impostazioni'), 'settings', 'Impostazioni', ep == 'admin_impostazioni') }}
+          {% endif %}
+          {{ nav_link(url_for('guida'), 'book-open', 'Guida', ep == 'guida') }}
+        </nav>
+        <div class="sidebar-foot">
+          <div class="user-chip">
+            <strong>{{ current_user.nome_completo or current_user.username }}</strong>
+            <small>{{ current_user.ruolo }}{% if current_user.filiale_nome %} · {{ current_user.filiale_nome }}{% endif %}{% if current_user.email %} · {{ current_user.email }}{% endif %}</small>
+          </div>
+          <a class="link-muted" href="{{ url_for('change_password') }}">{{ icon('key-round') }}Cambia password</a>
+          <a class="btn btn-ghost" href="{{ url_for('logout') }}">{{ icon('log-out') }}Esci</a>
         </div>
-        <a class="link-muted" href="{{ url_for('change_password') }}">Cambia password</a>
-        <a class="btn btn-ghost" href="{{ url_for('logout') }}">Esci</a>
       </div>
     </aside>
     <main class="content">
@@ -56,7 +66,7 @@
         {% if messages %}
           <div class="flashes">
             {% for category, message in messages %}
-              <div class="flash flash-{{ category }}">{{ message }}</div>
+              <div class="flash flash-{{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}">{{ message }}</div>
             {% endfor %}
           </div>
         {% endif %}

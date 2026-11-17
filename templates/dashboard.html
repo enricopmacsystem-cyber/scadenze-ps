@@ -2,6 +2,7 @@
 {% block title %}Panoramica — Scadenze PS{% endblock %}
 {% block content %}
 {% set cas = 'portatile' if cassetta == 'portatile' else none %}
+{% set STATO_ICON = {'ok': 'circle-check', 'in_scadenza': 'clock-alert', 'scaduto': 'circle-x', 'esaurito': 'package-x', 'non_scade': 'infinity', 'senza_data': 'circle-help', 'posticipato': 'calendar-clock'} %}
 <div class="page-head">
   <div>
     <h1>
@@ -17,13 +18,13 @@
   </div>
   <div class="toolbar">
     {% if can_edit %}
-      <a class="btn" href="{{ url_for('prodotto_nuovo', cassetta=cas, filiale=selected if selected is not none and selected > 0 else none) }}">Nuovo prodotto</a>
-      {% if not cas %}<a class="btn btn-secondary" href="{{ url_for('import_page') }}">Importa Excel</a>{% endif %}
+      <a class="btn" href="{{ url_for('prodotto_nuovo', cassetta=cas, filiale=selected if selected is not none and selected > 0 else none) }}">{{ icon('plus') }}Nuovo prodotto</a>
+      {% if not cas %}<a class="btn btn-secondary" href="{{ url_for('import_page') }}">{{ icon('file-spreadsheet') }}Importa Excel</a>{% endif %}
     {% endif %}
     {% if current_user.ruolo in ['admin', 'responsabile_ordini'] %}
       <form method="post" action="{{ url_for('invia_alert') }}" style="display:inline">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        <button class="btn btn-warn" type="submit">Invia alert email</button>
+        <button class="btn btn-warn" type="submit">{{ icon('send') }}Invia alert email</button>
       </form>
     {% endif %}
   </div>
@@ -61,7 +62,7 @@
 </div>
 {% endif %}
 
-<div class="card">
+<div class="card table-wrap">
   <table class="data">
     <thead>
       <tr>
@@ -78,7 +79,7 @@
       {% for p in prodotti %}
       <tr>
         <td>{{ p.filiale }}</td>
-        <td>{{ p.nome }}{% if p.cassetta == 'portatile' and not cas %} <span class="badge badge-portatile">Portatile</span>{% endif %}</td>
+        <td class="col-nome">{{ p.nome }}{% if p.cassetta == 'portatile' and not cas %} <span class="badge badge-portatile">Portatile</span>{% endif %}</td>
         <td>{{ p.pezzi_previsti }}</td>
         <td>{{ p.pezzi_effettivi }}</td>
         <td>
@@ -86,19 +87,19 @@
           {% elif p.scadenza %}{{ p.scadenza[8:10] }}/{{ p.scadenza[5:7] }}/{{ p.scadenza[0:4] }}
           {% else %}—{% endif %}
         </td>
-        <td><span class="badge badge-{{ p.stato }}">{{ p.stato_label }}</span></td>
-        <td>
+        <td><span class="badge badge-{{ p.stato }}">{{ icon(STATO_ICON.get(p.stato, 'circle-help')) }}{{ p.stato_label }}</span></td>
+        <td class="col-azioni">
           {% if current_user.ruolo in ['admin', 'filiale'] and p.filiale_id in editable_filiale_ids %}
-            <a class="btn btn-secondary btn-sm" href="{{ url_for('prodotto_modifica', pid=p.id) }}">Modifica</a>
-            <form method="post" action="{{ url_for('prodotto_elimina', pid=p.id) }}" style="display:inline" onsubmit="return confirm('Eliminare questo prodotto?')">
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('prodotto_modifica', pid=p.id) }}" aria-label="Modifica {{ p.nome }}">{{ icon('pencil') }}Modifica</a>
+            <form method="post" action="{{ url_for('prodotto_elimina', pid=p.id) }}" style="display:inline" data-nome="{{ p.nome }} ({{ p.filiale }})" onsubmit="return confirm('Eliminare definitivamente «' + this.dataset.nome + '»? Questa operazione non è reversibile.')">
               <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-              <button class="btn btn-danger btn-sm" type="submit">Elimina</button>
+              <button class="btn btn-danger btn-sm" type="submit" aria-label="Elimina {{ p.nome }}">{{ icon('trash-2') }}Elimina</button>
             </form>
           {% endif %}
           {% if current_user.ruolo in ['admin', 'responsabile_ordini'] and p.stato in ['in_scadenza', 'scaduto'] %}
             <form method="post" action="{{ url_for('posticipa', pid=p.id) }}" style="display:inline">
               <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-              <button class="btn btn-warn btn-sm" type="submit">Posticipa mese</button>
+              <button class="btn btn-warn btn-sm" type="submit">{{ icon('calendar-plus') }}Posticipa mese</button>
             </form>
           {% endif %}
         </td>

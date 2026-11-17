@@ -8,3 +8,4 @@
 *.xlsm binary
 *.db binary
 *.exe binary
+*.woff2 binary

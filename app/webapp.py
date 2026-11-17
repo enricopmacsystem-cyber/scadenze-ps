@@ -24,6 +24,7 @@ from app.email_alerts import (
     smtp_ready,
 )
 from app.excel_import import import_excel, preview_excel
+from app.icons import icon
 from app.paths import UPLOADS_DIR, ensure_dirs
 from app.security import (
     app_secret_key,
@@ -656,6 +657,7 @@ def create_app() -> Flask:
         return {
             "current_user": getattr(g, "user", None),
             "STATO_LABEL": STATO_LABEL,
+            "icon": icon,
             "today": date.today().isoformat(),
             "hide_shell": False,
             "csrf_token": session.get("csrf_token", ""),
