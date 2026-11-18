@@ -20,3 +20,6 @@ headers.txt
 hdr.txt
 ordini.html
 try_other.html
+
+# Impostazioni locali di Claude Code
+.claude/settings.local.json
