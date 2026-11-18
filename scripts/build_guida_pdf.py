@@ -23,7 +23,7 @@ from reportlab.platypus import (
 )
 
 ROOT = Path(__file__).resolve().parent.parent
-NAS_DIR = Path(r"\\172.17.17.11\supporto-tecnico\Scadenze-PS")
+NAS_DIR = Path(r"\\172.17.17.11\scadenza ps")
 DESKTOP = Path.home() / "Desktop"
 
 GREEN = colors.HexColor("#1f6f5b")
@@ -223,8 +223,10 @@ def _avvio_comune(story, styles) -> None:
     story.append(
         Paragraph(
             "Prima volta su un PC nuovo: aprire "
-            r"<font face='Courier'>\\172.17.17.11\supporto-tecnico\Scadenze-PS</font> "
-            "e lanciare <b>Crea collegamento Desktop.bat</b>.",
+            r"<font face='Courier'>\\172.17.17.11\scadenza ps</font> "
+            "e lanciare <b>Crea collegamento Desktop.bat</b>. "
+            "Se l'icona sul Desktop c'era già, non serve fare nulla: "
+            "continua a funzionare anche dopo lo spostamento della cartella.",
             styles["note"],
         )
     )
@@ -275,8 +277,30 @@ def build_filiale(path: Path) -> Path:
                 "Importare Excel (anche con colonne/nomi diversi)",
                 "Aggiungere, modificare o eliminare prodotti",
                 "Aggiornare pezzi effettivi e date di scadenza dopo sostituzione o consumo",
+                "Gestire anche la <b>cassetta portatile</b> della filiale "
+                "(voce <b>Cassetta portatile</b> nel menu)",
             ],
             styles,
+        )
+    )
+
+    story.append(Paragraph("Cassetta portatile", styles["h1"]))
+    story.append(
+        Paragraph(
+            "Oltre alla cassetta fissa ogni filiale ha una <b>cassetta PS portatile</b> "
+            "con 14 articoli standard. Si apre dalla voce <b>Cassetta portatile</b> "
+            "del menu e si gestisce come la fissa: stessi stati, stessi pulsanti "
+            "Modifica / Elimina, stesso obbligo di portare i pezzi a 0 se un "
+            "prodotto viene consumato. Negli alert compare con la dicitura "
+            "<b>[cassetta portatile]</b>.",
+            styles["body"],
+        )
+    )
+    story.append(
+        Paragraph(
+            "<b>Importa Excel</b> aggiorna solo la cassetta fissa: la portatile "
+            "si aggiorna a mano da Modifica.",
+            styles["note"],
         )
     )
 
@@ -343,7 +367,9 @@ def build_filiale(path: Path) -> Path:
         bullets(
             [
                 "<b>Errore NAS</b>: rete aziendale e percorso "
-                r"<font face='Courier'>\\172.17.17.11\supporto-tecnico</font>",
+                r"<font face='Courier'>\\172.17.17.11\scadenza ps</font>",
+                "<b>Accesso negato alla cartella</b>: il proprio utente Windows "
+                "non è tra quelli autorizzati, chiedere all'amministratore",
                 "<b>Password dimenticata</b>: chiedere reset all'amministratore",
                 "<b>Porta già in uso</b>: l'app riapre sul browser; una sola istanza",
             ],
@@ -388,7 +414,6 @@ def build_ordini(path: Path) -> Path:
                 "(password iniziale in guida admin / primo accesso)",
                 "<b>Sola lettura</b> sui prodotti: non puoi importare, creare o modificare",
                 "Vedi <b>tutte</b> le filiali e la vista <b>In alert</b>",
-                "Puoi <b>posticipare</b> un prodotto all'ordine del mese successivo",
                 "Puoi usare <b>Invia alert email</b> (quando l'invio è attivo)",
                 "Opzionale: <b>La mia email</b> per ricevere gli alert anche in posta",
             ],
@@ -404,7 +429,7 @@ def build_ordini(path: Path) -> Path:
                 [
                     "Scade entro 15 giorni",
                     "In scadenza",
-                    "Ordinare o posticipare",
+                    "Ordinare la sostituzione",
                 ],
                 ["Già scaduto", "Scaduto", "Sostituire / ordinare subito"],
                 [
@@ -428,6 +453,8 @@ def build_ordini(path: Path) -> Path:
                 "nel momento in cui la filiale salva pezzi = 0",
                 "<b>Scadenze</b>: notifica la prima volta che un prodotto entra "
                 "nella finestra dei 15 giorni (non ogni giorno)",
+                "I prodotti della cassetta portatile sono indicati con "
+                "<b>[cassetta portatile]</b> accanto al nome",
             ],
             styles,
         )
@@ -445,22 +472,11 @@ def build_ordini(path: Path) -> Path:
         numbered(
             [
                 "Aprire la vista <b>In alert</b> (o controllare le mail a go-live attivo)",
-                "Decidere cosa ordinare subito e cosa <b>Posticipa mese</b>",
+                "Ordinare il materiale per i prodotti in scadenza, scaduti o esauriti",
                 "Coordinare con le filiali la sostituzione in cassetta",
                 "Verificare che dopo il ricambio la filiale aggiorni pezzi e scadenza",
             ],
             styles,
-        )
-    )
-
-    story.append(Paragraph("Posticipo", styles["h1"]))
-    story.append(
-        Paragraph(
-            "Su un prodotto in scadenza/scaduto puoi usare <b>Posticipa mese</b>: "
-            "resta in elenco per l'ordine cumulativo del mese successivo. "
-            "I prodotti <b>esauriti</b> richiedono invece riordino immediato "
-            "(non ha senso posticiparli se la cassetta è scoperta).",
-            styles["body"],
         )
     )
 
@@ -497,12 +513,35 @@ def build_admin(path: Path) -> Path:
     )
     story.append(
         Preformatted(
-            "\\\\172.17.17.11\\supporto-tecnico\\Scadenze-PS\\\n"
+            "\\\\172.17.17.11\\scadenza ps\\\n"
             "  data\\scadenze.db\n"
             "  config\\settings.json\n"
             "  uploads\\\n"
             "  GUIDA_*.pdf",
             styles["code"],
+        )
+    )
+
+    story.append(Paragraph("Cartella del progetto (dal 30/10/2026)", styles["h1"]))
+    story.append(
+        bullets(
+            [
+                "Cartella attuale: "
+                r"<font face='Courier'>\\172.17.17.11\scadenza ps</font>, "
+                "accessibile solo agli utenti Windows autorizzati "
+                "(nuovi utenti: aggiungerli ai permessi della condivisione)",
+                "Vecchia cartella "
+                r"<font face='Courier'>\\172.17.17.11\supporto-tecnico\Scadenze-PS</font>: "
+                "resta solo come <b>ponte</b>. I vecchi collegamenti Desktop passano "
+                "da lì e si aggiornano da soli verso la nuova cartella",
+                "Ogni PC che passa dal ponte viene registrato in "
+                "<font face='Courier'>logs\\migrazione_collegamenti.csv</font>: "
+                "la vecchia cartella si può eliminare quando ci sono tutte le filiali",
+                "Il vecchio database è bloccato: una copia vecchia dell'app non può "
+                "scriverci. Se un PC non si apre, rilanciare "
+                "<b>Crea collegamento Desktop.bat</b> dalla nuova cartella",
+            ],
+            styles,
         )
     )
 
@@ -537,10 +576,13 @@ def build_admin(path: Path) -> Path:
         bullets(
             [
                 "Gestione utenti e reset password (Utenti)",
-                "Accesso completo a tutte le filiali",
+                "Accesso completo a tutte le filiali, cassetta fissa e portatile",
                 "Impostazioni SMTP, destinatari globali (Silvia), email per filiale",
                 "Giorni di preavviso scadenza (oggi: <b>15</b>)",
                 "Pulsante Invia alert (quando invio attivo)",
+                "Funzione <b>Posticipa mese</b> (ordine cumulativo): oggi nascosta. "
+                "Si riattiva da <b>Impostazioni</b> con «Mostra la funzione Posticipa mese»; "
+                "i posticipi già salvati non vengono persi",
             ],
             styles,
         )
@@ -633,7 +675,7 @@ def build_indice(path: Path) -> Path:
                 [
                     "GUIDA_ORDINI.pdf",
                     "Chi ordina il materiale",
-                    "Vista alert, posticipo, lettura mail riordino",
+                    "Vista alert, lettura mail riordino",
                 ],
                 [
                     "GUIDA_ADMIN.pdf",
@@ -656,7 +698,7 @@ def build_indice(path: Path) -> Path:
     story.append(
         Paragraph(
             "Cartella NAS: "
-            r"<font face='Courier'>\\172.17.17.11\supporto-tecnico\Scadenze-PS</font>",
+            r"<font face='Courier'>\\172.17.17.11\scadenza ps</font>",
             styles["note"],
         )
     )

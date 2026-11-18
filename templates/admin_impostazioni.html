@@ -37,6 +37,9 @@
   <p class="muted">Formato: <code>Nome filiale: email1, email2</code> (una riga per filiale).
     Ogni responsabile riceve <strong>solo i prodotti della propria filiale</strong>.
     Mirandola/Modena: lascia vuoto finché in standby.</p>
+  <label class="check"><input type="checkbox" name="posticipo_enabled" {% if settings.posticipo_enabled %}checked{% endif %}> Mostra la funzione «Posticipa mese»</label>
+  <p class="muted">Spenta: il pulsante e la pagina Posticipati sono nascosti e i prodotti restano in alert normalmente.
+    I posticipi già salvati non vengono cancellati e tornano validi se la riattivi.</p>
   <div class="form-actions"><button class="btn" type="submit">Salva</button></div>
 </form>
 {% endblock %}

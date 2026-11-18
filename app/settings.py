@@ -39,7 +39,16 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "last_alert_check": None,
     # False = nessun invio SMTP (alert solo in app). Attivare in go-live.
     "email_alerts_enabled": False,
+    # Funzione «Posticipa mese» (ordine cumulativo): nascosta finché non serve.
+    # Riattivabile da Impostazioni; i posticipi già salvati restano nel database.
+    "posticipo_enabled": False,
 }
+
+
+def posticipo_attivo(settings: dict[str, Any] | None = None) -> bool:
+    """True se la funzione «Posticipa mese» è visibile e usata dagli alert."""
+    s = settings if settings is not None else load_settings()
+    return bool(s.get("posticipo_enabled"))
 
 
 def _app_secret() -> str:

@@ -4,7 +4,7 @@ App per cassette di pronto soccorso. **Tutto sul NAS**; sui PC solo il collegame
 
 ## Percorso NAS
 
-`\\172.17.17.11\supporto-tecnico\Scadenze-PS`
+`\\172.17.17.11\scadenza ps`
 
 ## Setup rapido (ogni PC)
 

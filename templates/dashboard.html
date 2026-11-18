@@ -96,7 +96,7 @@
               <button class="btn btn-danger btn-sm" type="submit" aria-label="Elimina {{ p.nome }}">{{ icon('trash-2') }}Elimina</button>
             </form>
           {% endif %}
-          {% if current_user.ruolo in ['admin', 'responsabile_ordini'] and p.stato in ['in_scadenza', 'scaduto'] %}
+          {% if posticipo_attivo and current_user.ruolo in ['admin', 'responsabile_ordini'] and p.stato in ['in_scadenza', 'scaduto'] %}
             <form method="post" action="{{ url_for('posticipa', pid=p.id) }}" style="display:inline">
               <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
               <button class="btn btn-warn btn-sm" type="submit">{{ icon('calendar-plus') }}Posticipa mese</button>

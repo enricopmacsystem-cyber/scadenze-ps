@@ -36,7 +36,7 @@ from app.security import (
     strong_temp_password,
     validate_csrf,
 )
-from app.settings import load_settings, save_settings
+from app.settings import load_settings, posticipo_attivo, save_settings
 
 STATO_LABEL = {
     "ok": "OK",
@@ -248,6 +248,9 @@ def create_app() -> Flask:
         view = request.args.get("view")
         raw_filiale = request.args.get("filiale")
         cassetta = _cassetta_arg(request.args.get("cassetta"))
+        posticipo = posticipo_attivo(settings)
+        if view == "posticipati" and not posticipo:
+            return redirect(url_for("dashboard"))
 
         if is_global and view == "alert":
             prodotti = db.prodotti_in_alert(giorni)
@@ -287,7 +290,7 @@ def create_app() -> Flask:
             stato = db.stato_prodotto(p, giorni)
             if stato in {"in_scadenza", "scaduto", "esaurito"}:
                 alert_count += 1
-            posticipato = db.is_posticipato(p["id"], mese)
+            posticipato = posticipo and db.is_posticipato(p["id"], mese)
             rows.append({**p, "stato": "posticipato" if posticipato else stato,
                          "stato_label": "Posticipato" if posticipato else STATO_LABEL[stato]})
 
@@ -511,6 +514,9 @@ def create_app() -> Flask:
     @app.route("/posticipa/<int:pid>", methods=["POST"])
     @role_required("admin", "responsabile_ordini")
     def posticipa(pid: int):
+        if not posticipo_attivo():
+            flash("La funzione «Posticipa mese» non è attiva.", "warning")
+            return redirect(url_for("dashboard", view="alert"))
         prodotto = db.get_prodotto(pid)
         if not prodotto:
             flash("Prodotto non trovato.", "error")
@@ -616,6 +622,7 @@ def create_app() -> Flask:
             settings["alert_days"] = int(request.form.get("alert_days") or 15)
             # Forza spegnimento finché il go-live non è esplicitamente riattivato nel codice
             settings["email_alerts_enabled"] = False
+            settings["posticipo_enabled"] = request.form.get("posticipo_enabled") == "on"
             settings["recipients"] = [
                 x.strip() for x in request.form.get("recipients", "").splitlines() if x.strip()
             ]
@@ -658,6 +665,7 @@ def create_app() -> Flask:
             "current_user": getattr(g, "user", None),
             "STATO_LABEL": STATO_LABEL,
             "icon": icon,
+            "posticipo_attivo": posticipo_attivo() if getattr(g, "user", None) else False,
             "today": date.today().isoformat(),
             "hide_shell": False,
             "csrf_token": session.get("csrf_token", ""),

@@ -238,7 +238,11 @@ def check_and_send_alerts(
     tutti = db.prodotti_in_alert(giorni)
     nuovi = db.prodotti_alert_non_notificati(giorni)
     mese_corrente = date.today().strftime("%Y-%m")
-    posticipati = db.alert_posticipati_attivi(mese_corrente) if force else []
+    posticipati = (
+        db.alert_posticipati_attivi(mese_corrente)
+        if force and settings.get("posticipo_enabled")
+        else []
+    )
 
     global_to = collect_global_recipients(settings)
     result: dict[str, Any] = {

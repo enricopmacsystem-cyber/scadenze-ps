@@ -30,6 +30,8 @@ Senza aggiornamento in app, nessuno riceve l’avviso.
 | Scaduto | Data passata |
 | **Esaurito** | Pezzi effettivi = 0 |
 
+Ogni filiale ha anche la **cassetta portatile** (voce *Cassetta portatile* nel menu), con gli stessi stati.
+
 ## Email (go-live)
 
 - **Scadenze:** Silvia = quadro completo; filiale = solo i propri prodotti (prima volta entro 15 gg)
@@ -39,5 +41,5 @@ Senza aggiornamento in app, nessuno riceve l’avviso.
 ## Accesso rapido
 
 1. Icona Desktop **Scadenze PS** → `http://localhost:5000`
-2. Prima volta: `\\172.17.17.11\supporto-tecnico\Scadenze-PS` → `Crea collegamento Desktop.bat`
+2. Prima volta: `\\172.17.17.11\scadenza ps` → `Crea collegamento Desktop.bat`
 3. Credenziali e dettagli: vedere **GUIDA_ADMIN.pdf** / guida del proprio ruolo

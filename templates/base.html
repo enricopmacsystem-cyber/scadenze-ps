@@ -35,7 +35,7 @@
           {% if current_user.ruolo != 'filiale' %}
           {{ nav_link(url_for('dashboard', view='alert'), 'bell-ring', 'In alert', view == 'alert') }}
           {% endif %}
-          {% if current_user.ruolo in ['admin', 'responsabile_ordini'] %}
+          {% if posticipo_attivo and current_user.ruolo in ['admin', 'responsabile_ordini'] %}
           {{ nav_link(url_for('dashboard', view='posticipati'), 'calendar-clock', 'Posticipati', view == 'posticipati') }}
           {% endif %}
           {% if current_user.ruolo == 'responsabile_ordini' %}
